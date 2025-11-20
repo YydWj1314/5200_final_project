@@ -1,15 +1,5 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
 ## Final Project
 
 ### GCP connection
@@ -44,13 +34,24 @@ gcloud sql connect neu-test-db --user=root
   ...
 ```
 
+文件内容：
+
 ```bash
 DB_HOST=34.176.110.132           # GCP IP
 DB_PORT=3306
 DB_USER= 用户名
 DB_PASSWORD= 密码
 DB_NAME=5200_final_project
+
 ```
+
+### run the app:
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 ### sql 相关
 
