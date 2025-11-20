@@ -1,0 +1,77 @@
+# =========================
+# Node & package managers
+# =========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# =========================
+# Next.js build outputs
+# =========================
+.next/
+out/
+dist/
+build/
+
+# =========================
+# Testing & coverage
+# =========================
+coverage/
+
+# =========================
+# Env files
+# =========================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# =========================
+# Vercel / deployment
+# =========================
+.vercel/
+
+# =========================
+# Logs & misc data files
+# =========================
+*.log
+logs/
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+
+# =========================
+# Editor / IDE
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# System files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Yarn Plug'n'Play
+# =========================
+.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# =========================
+# TypeScript
+# =========================
+*.tsbuildinfo
+next-env.d.ts

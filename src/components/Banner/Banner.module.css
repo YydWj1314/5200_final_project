@@ -1,0 +1,117 @@
+.banner {
+  position: relative;
+  width: 100%;
+  height: 420px;
+  overflow: hidden;
+  background: linear-gradient(
+    to bottom,
+    hsla(210, 82%, 67%, 0.6),
+    rgba(135, 190, 250, 0.5),
+    rgba(255, 150, 200, 0.4),
+    rgba(255, 180, 130, 0.35),
+    rgba(255, 210, 130, 0.3),
+    rgba(255, 230, 160, 0.2),
+    rgba(255, 230, 180, 0)
+  );
+}
+
+.bannerContent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  margin-top: 150px;
+  color: rgb(80, 70, 100);
+}
+.banner h1 {
+  font-size: 3rem;
+}
+.banner p {
+  font-size: 1.2rem;
+  opacity: 0.8;
+}
+
+.waves {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  min-height: 100px;
+  max-height: 150px;
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(255, 220, 150, 0.85),
+      rgba(255, 180, 120, 0.75),
+      rgba(255, 140, 130, 0.65),
+      rgba(255, 130, 150, 0.6),
+      rgba(76, 141, 245, 0.5)
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(255, 180, 130, 0.1),
+      rgba(255, 180, 130, 0.2),
+      rgba(255, 150, 140, 0.6),
+      rgba(240, 130, 190, 0.5),
+      rgba(0, 123, 255, 0.5),
+      rgba(100, 160, 230, 0.3),
+      rgba(80, 140, 210, 0.3),
+      rgba(60, 120, 200, 0.2),
+      rgba(40, 100, 180, 0.1),
+      rgba(20, 80, 160, 0)
+    );
+}
+
+/* Waves 动画 */
+.parallax > use {
+  animation: move-forever 25s cubic-bezier(0.55, 0.5, 0.45, 0.5) infinite;
+}
+.parallax > use:nth-child(1) {
+  animation-delay: -2s;
+  animation-duration: 7s;
+}
+.parallax > use:nth-child(2) {
+  animation-delay: -3s;
+  animation-duration: 10s;
+}
+.parallax > use:nth-child(3) {
+  animation-delay: -4s;
+  animation-duration: 13s;
+}
+.parallax > use:nth-child(4) {
+  animation-delay: -5s;
+  animation-duration: 20s;
+}
+@keyframes move-forever {
+  0% {
+    transform: translate3d(-90px, 0, 0);
+  }
+  100% {
+    transform: translate3d(85px, 0, 0);
+  }
+}
+
+/* 打字机效果 */
+.typewriter {
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 4px solid rgb(80, 70, 100);
+  padding-right: 5px;
+  width: 0;
+  animation:
+    typing 3s steps(30, end) forwards,
+    blink 0.6s infinite;
+}
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 12ch;
+  }
+}
+@keyframes blink {
+  50% {
+    border-color: transparent;
+  }
+}

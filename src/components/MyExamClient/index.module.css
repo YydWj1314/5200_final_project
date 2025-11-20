@@ -1,0 +1,122 @@
+/* 整页高度占满，便于 flex 计算 */
+.fullHeightLayout {
+  min-height: 100vh;
+}
+
+/* Header 样式 */
+.header {
+  background: #fff !important;
+  padding: 0 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.headerInner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.bankTitle {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* 内容区 */
+.contentArea {
+  background: #fafafa;
+}
+
+.wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+/* 主卡片：纵向分布，内部用 flex 让上下两块可拉伸 */
+.mainCard {
+  display: flex;
+  flex-direction: column;
+  /* 视口高度 - header(64) - wrapper padding & 间隙（大致值） */
+  min-height: calc(100vh - 120px);
+}
+
+/* 题干区：可拉伸 + 内滚动 */
+.questionPane {
+  flex: 1 1 0;
+  overflow: auto;
+  padding: 8px 0;
+  min-height: 200px; /* 题干最小高度 */
+}
+
+/* 操作区：固定高度 */
+.actionBar {
+  padding: 12px 0;
+  border-top: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.navBtns {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 答案区：可拉伸 + 内滚动 */
+.answerPane {
+  flex: 1 1 0;
+  display: flex; /* 开启 flex */
+  align-items: center; /* 垂直居中 */
+  justify-content: flex-start; /* 水平靠左（可改成 center 居中） */
+  overflow: auto; /* 内容过多时可滚动 */
+  padding: 12px;
+  min-height: 150px;
+}
+
+/* 隐藏答案：将高度压缩为 0，移除滚动与内边距 */
+.isHidden {
+  flex: 0 0 0 !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+
+/* 右侧面板粘性吸顶 */
+.rightSticky {
+  position: sticky;
+  top: 16px;
+}
+
+/* 答题卡网格 */
+.gridAnswerSheet {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+/* Markdown 中代码块/表格/图片在缩放时不撑爆布局 */
+.questionPane pre,
+.answerPane pre {
+  overflow: auto;
+  max-width: 100%;
+}
+
+.questionPane img,
+.answerPane img {
+  max-width: 100%;
+  height: auto;
+}
+
+.questionPane table,
+.answerPane table {
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
+}

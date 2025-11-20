@@ -1,0 +1,31 @@
+.main {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: #f5f5f5;
+  padding: 16px;
+}
+
+.card {
+  width: 420px; /* 固定宽度 */
+  max-width: 92vw; /* 小屏自动缩小 */
+  height: 480px; /* 固定高度（可按需删除） */
+  transform: translateY(-150px);
+}
+
+.header {
+  font-size: 22px;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60px; /* 让标题区域更稳 */
+}
+
+.bottom {
+  margin-top: 18px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #888;
+}
