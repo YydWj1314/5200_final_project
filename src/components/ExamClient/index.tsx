@@ -1,12 +1,25 @@
 'use client';
 
 import { useEffect, useState, ReactNode } from 'react';
-import { Layout, Row, Col, Card, Space, Button, Slider, Badge } from 'antd';
-import { StarOutlined, StarFilled } from '@ant-design/icons';
+import {
+  Layout,
+  Row,
+  Col,
+  Card,
+  Space,
+  Button,
+  Slider,
+  Badge,
+  Modal,
+  Spin,
+  message,
+} from 'antd';
+import { StarOutlined, StarFilled, RobotOutlined } from '@ant-design/icons';
 import type { CSSProperties } from 'react';
 import { useParams } from 'next/navigation';
 import styles from './index.module.css';
 import { QuestionInDetail } from '@/types/Questions';
+import ReactMarkdown from 'react-markdown';
 
 import { useBankFavorites } from '@/app/hooks/useBankFavorites';
 import { useQuestionSaved } from '@/app/hooks/useQuestionSaved';
@@ -52,6 +65,11 @@ export default function ExamClient({
   const [fontSize, setFontSize] = useState(16);
   const [marks, setMarks] = useState<Set<number>>(new Set());
   const [answered, setAnswered] = useState<Set<number>>(new Set());
+  
+  // AI 查询相关状态
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+  const [aiResponse, setAiResponse] = useState<string>('');
+  const [isAiLoading, setIsAiLoading] = useState(false);
 
   // from router: exams/[bankId]
   const params = useParams();
@@ -70,12 +88,17 @@ export default function ExamClient({
   }, [qi]);
 
   const curr = questions[qi];
+  
+  // 确保 curr 存在
+  if (!curr) {
+    return null;
+  }
 
   const {
     isSaved,
     isLoading: qLoading,
     toggleSave,
-  } = useQuestionSaved(Number(curr?.id));
+  } = useQuestionSaved(Number(curr.id));
 
   const toggleMark = () => {
     const id = Number(curr.id);
@@ -93,6 +116,45 @@ export default function ExamClient({
       next.add(id);
       return next;
     });
+  };
+
+  // AI 查询功能
+  const handleAiQuery = async () => {
+    setIsAiModalOpen(true);
+    setIsAiLoading(true);
+    setAiResponse('');
+
+    try {
+      // 提取题目和答案的文本内容
+      const questionText = curr.content || '';
+      const answerText = curr.answer || '';
+
+      const response = await fetch('/api/ai/query', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          question: questionText,
+          answer: answerText,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setAiResponse(data.response);
+      } else {
+        message.error(data.error || 'Failed to get AI response');
+        setAiResponse('Sorry, I encountered an error. Please try again.');
+      }
+    } catch (error) {
+      console.error('[AI Query Error]', error);
+      message.error('Failed to connect to AI service');
+      setAiResponse('Sorry, I encountered an error. Please try again.');
+    } finally {
+      setIsAiLoading(false);
+    }
   };
 
   return (
@@ -121,7 +183,10 @@ export default function ExamClient({
           <Row gutter={24} align="stretch">
             {/* 左侧：题目 + 答案 */}
             <Col xs={24} md={16}>
-              <Card className={styles.mainCard} bodyStyle={{ padding: 16 }}>
+              <Card
+                className={styles.mainCard}
+                styles={{ body: { padding: 16 } }}
+              >
                 {/* 题干区：flex-grow + 内部滚动 */}
                 <div className={styles.questionPane} style={{ fontSize }}>
                   {contentNodes[qi]}
@@ -129,21 +194,30 @@ export default function ExamClient({
 
                 {/* 操作区：固定高度 */}
                 <div className={styles.actionBar}>
-                  <Button
-                    className={[
-                      'content-button-answer',
-                      isAnswerHidden ? 'content-button-answer--show' : '',
-                    ]
-                      .filter(Boolean)
-                      .join(' ')}
-                    type="primary"
-                    onClick={() => {
-                      setIsAnswerHidden(false);
-                      markAnswered();
-                    }}
-                  >
-                    👉 Show Answer
-                  </Button>
+                  <Space>
+                    <Button
+                      className={[
+                        'content-button-answer',
+                        isAnswerHidden ? 'content-button-answer--show' : '',
+                      ]
+                        .filter(Boolean)
+                        .join(' ')}
+                      type="primary"
+                      onClick={() => {
+                        setIsAnswerHidden(false);
+                        markAnswered();
+                      }}
+                    >
+                      👉 Show Answer
+                    </Button>
+                    <Button
+                      type="default"
+                      icon={<RobotOutlined />}
+                      onClick={handleAiQuery}
+                    >
+                      Ask AI
+                    </Button>
+                  </Space>
 
                   <div className={styles.navBtns}>
                     <Space>
@@ -211,7 +285,7 @@ export default function ExamClient({
                   title="Records"
                   extra={<Badge status="success" text="Done" />}
                   style={{ marginBottom: 16 }}
-                  bodyStyle={{ paddingBottom: 8 }}
+                  styles={{ body: { paddingBottom: 8 } }}
                 >
                   <div className={styles.gridAnswerSheet}>
                     {questions.map((q, index) => {
@@ -252,6 +326,40 @@ export default function ExamClient({
           </Row>
         </div>
       </Content>
+
+      {/* AI 查询 Modal */}
+      <Modal
+        title={
+          <Space>
+            <RobotOutlined />
+            <span>AI Assistant</span>
+          </Space>
+        }
+        open={isAiModalOpen}
+        onCancel={() => setIsAiModalOpen(false)}
+        footer={[
+          <Button key="close" onClick={() => setIsAiModalOpen(false)}>
+            Close
+          </Button>,
+        ]}
+        width={800}
+        style={{ top: 20 }}
+      >
+        <div style={{ minHeight: 300, maxHeight: 600, overflow: 'auto' }}>
+          {isAiLoading ? (
+            <div style={{ textAlign: 'center', padding: '40px 0' }}>
+              <Spin size="large" />
+              <div style={{ marginTop: 16, color: '#666' }}>
+                AI is thinking...
+              </div>
+            </div>
+          ) : (
+            <div style={{ fontSize: 15, lineHeight: 1.8 }}>
+              <ReactMarkdown>{aiResponse}</ReactMarkdown>
+            </div>
+          )}
+        </div>
+      </Modal>
     </Layout>
   );
 }

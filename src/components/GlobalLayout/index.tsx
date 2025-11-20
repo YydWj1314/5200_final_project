@@ -103,8 +103,8 @@ export default function BasicLayout({ children }: Props) {
             <Col>
               {isLoading ? (
                 // 1. Loading
-                <Button type="primary" shape="round">
-                  Loadin...
+                <Button type="primary" shape="round" loading>
+                  Loading...
                 </Button>
               ) : !me ? (
                 // 2. 没有 me 或者没有 user_role => 未登录
