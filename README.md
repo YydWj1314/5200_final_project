@@ -33,6 +33,29 @@ gcloud config set project db-002088658-472700
 gcloud sql connect neu-test-db --user=root
 ```
 
+### 本地项目中添加 .env.local 文件
+
+```bash
+项目文件夹/
+  .env.local      👈 放这里
+  package.json
+  next.config.mjs
+  src/
+  ...
+```
+
+```bash
+DB_HOST=34.176.110.132           # GCP IP
+DB_PORT=3306
+DB_USER= 用户名
+DB_PASSWORD= 密码
+DB_NAME=5200_final_project
+```
+
+### sql 相关
+
+建表语句：
+
 ```sql
 -- 建议先选好数据库：
 USE 5200_final_project;
