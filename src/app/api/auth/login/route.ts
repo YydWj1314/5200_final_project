@@ -1,8 +1,3 @@
-// app/api/login/route.ts
-
-// export const runtime = 'nodejs';
-// export const dynamic = 'force-dynamic';
-
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import {
@@ -25,7 +20,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // 🔹 抽出来的 SQL 调用
+    // DB query
     const user = await getUserForLogin(user_account);
 
     if (!user) {

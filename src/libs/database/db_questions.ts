@@ -1,16 +1,20 @@
-import { Question } from '@/types/Exams'; // 字段需与 DB 对齐
 import { logCall } from '../utils/logUtils';
 import { throwError } from '../utils/errorUtils';
-import { QuestionInDetail } from '@/types/Questions';
 import { getDBPool } from '../db';
 import type { RowDataPacket } from 'mysql2';
+import {
+  QuestionInShowList,
+  QuestionInTopSaved,
+  QuestionInDetail,
+} from '@/types/Questions';
 
 /**
  * Get questions by bankId
+ * Used in exam page for a specific question bank.
  */
 export async function getQuestionsByBankId(
   bankId: number,
-): Promise<Question[]> {
+): Promise<QuestionInShowList[]> {
   logCall();
   try {
     const pool = getDBPool();
@@ -33,7 +37,16 @@ export async function getQuestionsByBankId(
       [bankId],
     );
 
-    return rows as unknown as Question[];
+    return (rows as any[]).map((r) => ({
+      id: r.id,
+      title: r.title,
+      content: r.content ?? '',
+      tags:
+        typeof r.tags === 'string'
+          ? (JSON.parse(r.tags) as string[])
+          : (r.tags as string[] | null),
+      answer: r.answer,
+    }));
   } catch (error) {
     console.error('[db_questions/getQuestionsByBankId]', error);
     throwError('Query questions failed');
@@ -42,8 +55,9 @@ export async function getQuestionsByBankId(
 
 /**
  * Get question list (all, not deleted)
+ * Used by QuestionsPage main list.
  */
-export async function getAllQuestions(): Promise<Question[]> {
+export async function getAllQuestions(): Promise<QuestionInShowList[]> {
   logCall();
   try {
     const pool = getDBPool();
@@ -62,7 +76,16 @@ export async function getAllQuestions(): Promise<Question[]> {
       `,
     );
 
-    return rows as unknown as Question[];
+    return (rows as any[]).map((r) => ({
+      id: r.id,
+      title: r.title,
+      content: r.content ?? '',
+      tags:
+        typeof r.tags === 'string'
+          ? (JSON.parse(r.tags) as string[])
+          : (r.tags as string[] | null),
+      answer: r.answer,
+    }));
   } catch (error) {
     console.error('[db_questions/getAllQuestions]', error);
     throwError('Query questions failed');
@@ -70,12 +93,15 @@ export async function getAllQuestions(): Promise<Question[]> {
 }
 
 /**
- * Get question by questionId
+ * Get question detail by question id
+ * @param questionId
+ * @returns
  */
 export async function getQuestionByQid(
   questionId: number,
 ): Promise<QuestionInDetail | null> {
   logCall();
+
   try {
     const pool = getDBPool();
 
@@ -85,9 +111,8 @@ export async function getQuestionByQid(
         id,
         title,
         content,
-        answer,
         tags,
-        updated_at
+        answer
       FROM questions
       WHERE id = ?
         AND is_delete = 0
@@ -96,21 +121,36 @@ export async function getQuestionByQid(
       [questionId],
     );
 
-    const row = rows[0] as (RowDataPacket & QuestionInDetail) | undefined;
-    return row ?? null;
+    const row = (rows as any[])[0];
+    if (!row) return null;
+
+    const detail: QuestionInDetail = {
+      id: row.id,
+      title: row.title,
+      content: row.content ?? '',
+      tags:
+        typeof row.tags === 'string'
+          ? (JSON.parse(row.tags) as string[])
+          : (row.tags as string[] | null),
+      answer: row.answer,
+    };
+
+    return detail;
   } catch (error) {
     console.error('[db_questions/getQuestionByQid]', error);
-    throwError('Query questions failed');
+    throwError('Query question by id failed');
   }
 }
 
 /**
- * Get saved questions by userId
+ * Get questions saved by userId
+ * Used in "My Banks / My Favorites" page.
  */
 export async function getSavedQuestionsByUserId(
   userId: number,
-): Promise<Question[]> {
+): Promise<QuestionInShowList[]> {
   logCall();
+
   try {
     const pool = getDBPool();
 
@@ -132,7 +172,16 @@ export async function getSavedQuestionsByUserId(
       [userId],
     );
 
-    return rows as unknown as Question[];
+    return (rows as any[]).map((r) => ({
+      id: r.id,
+      title: r.title,
+      content: r.content ?? '',
+      tags:
+        typeof r.tags === 'string'
+          ? (JSON.parse(r.tags) as string[])
+          : (r.tags as string[] | null),
+      answer: r.answer,
+    }));
   } catch (error) {
     console.error('[db_questions/getSavedQuestionsByUserId]', error);
     throwError('Get saved questions failed');
@@ -142,7 +191,9 @@ export async function getSavedQuestionsByUserId(
 /**
  * Search questions by string in title / content / answer
  */
-export async function searchQuestionsByStr(str: string): Promise<Question[]> {
+export async function searchQuestionsByStr(
+  str: string,
+): Promise<QuestionInShowList[]> {
   logCall();
   try {
     const pool = getDBPool();
@@ -150,7 +201,6 @@ export async function searchQuestionsByStr(str: string): Promise<Question[]> {
     const q = str?.trim();
     if (!q) return [];
 
-    // 使用 LIKE 模糊搜索（参数绑定，不怕注入）
     const pattern = `%${escapeLike(q)}%`;
 
     const [rows] = await pool.query<RowDataPacket[]>(
@@ -164,34 +214,37 @@ export async function searchQuestionsByStr(str: string): Promise<Question[]> {
       FROM questions
       WHERE is_delete = 0
         AND (
-          title   LIKE ? ESCAPE '\\'
-          OR content LIKE ? ESCAPE '\\'
-          OR answer  LIKE ? ESCAPE '\\'
+          title   LIKE ?
+          OR content LIKE ?
+          OR answer  LIKE ?
         )
       ORDER BY id DESC
       `,
       [pattern, pattern, pattern],
     );
 
-    return rows as unknown as Question[];
+    return rows as unknown as QuestionInShowList[];
   } catch (error) {
     console.error('[db_questions/searchQuestionsByStr]', error);
     throwError('Search questions failed');
   }
 }
 
-// 工具：转义 LIKE 的特殊字符（%, _ 和 \）
+// Escape special characters in LIKE pattern: %, _ and \
 function escapeLike(s: string) {
   return s
-    .replaceAll('\\', '\\\\') // 先转义反斜杠
+    .replaceAll('\\', '\\\\') // escape backslash first
     .replaceAll('%', '\\%')
     .replaceAll('_', '\\_');
 }
 
 /**
  * Get top saved questions (by saved_count)
+ * Used for "Top Saved" sidebar.
  */
-export async function getTopSavedQuestions(limit: number): Promise<Question[]> {
+export async function getTopSavedQuestions(
+  limit: number,
+): Promise<QuestionInTopSaved[]> {
   logCall();
   try {
     const pool = getDBPool();
@@ -205,14 +258,21 @@ export async function getTopSavedQuestions(limit: number): Promise<Question[]> {
         saved_count
       FROM questions
       WHERE is_delete = 0
-      ORDER BY saved_count DESC
+      ORDER BY saved_count DESC, id DESC
       LIMIT ?
       `,
       [limit],
     );
 
-    // 这里返回的字段比 Question 少一点，前端用的时候注意类型
-    return rows as unknown as Question[];
+    return (rows as any[]).map((r) => ({
+      id: r.id,
+      content: r.content ?? '',
+      tags:
+        typeof r.tags === 'string'
+          ? (JSON.parse(r.tags) as string[])
+          : (r.tags as string[] | null),
+      saved_count: Number(r.saved_count ?? 0),
+    }));
   } catch (error) {
     console.error('[db_questions/getTopSavedQuestions]', error);
     throwError('Query top saved questions failed');

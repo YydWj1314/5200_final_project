@@ -1,24 +1,21 @@
 import { NextResponse } from 'next/server';
 import { authSessionInServer } from '@/libs/utils/sessionUtils';
-import { createClient } from '@/libs/utils/supabase/app_router/server';
+import { getSavedQidByUid } from '@/libs/database/db_question_saved';
 
 export const revalidate = 0;
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const userId = await authSessionInServer();
-  if (!userId)
+  if (!userId) {
     return NextResponse.json({ ok: false, ids: [] }, { status: 401 });
+  }
 
-  const sb = await createClient();
-  const { data, error } = await sb
-    .from('user_question_saved')
-    .select('question_id')
-    .eq('user_id', userId);
-
-  if (error) return NextResponse.json({ ok: false, ids: [] }, { status: 500 });
-  return NextResponse.json({
-    ok: true,
-    ids: (data ?? []).map((r) => r.question_id),
-  });
+  try {
+    const ids = await getSavedQidByUid(userId);
+    return NextResponse.json({ ok: true, ids });
+  } catch (e) {
+    console.error('[api/questions/saved-ids] error:', e);
+    return NextResponse.json({ ok: false, ids: [] }, { status: 500 });
+  }
 }

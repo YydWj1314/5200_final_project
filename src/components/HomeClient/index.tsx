@@ -1,22 +1,18 @@
 'use client';
-import { List, Card } from 'antd';
-import Link from 'next/link';
+import { List } from 'antd';
 import { Bank } from '@/types/Banks';
 import TopicCard from '../TopicCard/HomeTopicCard';
-import styles from './Banner.module.css';
-import Banner from '../Banner';
 
 interface BankGroups {
   [groupKey: string]: Bank[];
 }
 
 export default function HomeClient({ items }: { items: BankGroups }) {
-  // 把 { [groupKey]: Bank[]...} 转成数组 [[groupKey, banks] ...]，便于 List 渲染
   /**
    *   [ "key",
           [
-            { id: 1, title: "算法与数据结构" },
-            { id: 2, title: "操作系统" }
+            { id: 1, title: "..." },
+            { id: 2, title: "..." }
           ]
        ], [groupKey, banks],
    */
@@ -28,7 +24,7 @@ export default function HomeClient({ items }: { items: BankGroups }) {
       style={{
         maxWidth: 1188,
         margin: '0 auto',
-        paddingInline: 18, //  gutter/2，兜住 .ant-row 的负外边距
+        paddingInline: 18,
       }}
       dataSource={groups}
       rowKey={([groupKey]) => groupKey}

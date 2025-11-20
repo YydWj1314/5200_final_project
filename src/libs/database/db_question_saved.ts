@@ -24,6 +24,15 @@ export async function insertQuestionSaved(
       `,
       [userId, questionId],
     );
+    // saved_count + 1
+    await pool.query(
+      `
+      UPDATE questions
+      SET saved_count = saved_count + 1
+      WHERE id = ?
+      `,
+      [questionId],
+    );
 
     return result.affectedRows ?? 0;
   } catch (error) {
@@ -51,6 +60,15 @@ export async function cancelQuestionSaved(
       `,
       [userId, questionId],
     );
+    // saved_count - 1
+    await pool.query(
+      `
+      UPDATE questions
+      SET saved_count = GREATEST(saved_count - 1, 0)
+      WHERE id = ?
+      `,
+      [questionId],
+    );
 
     return result.affectedRows ?? 0;
   } catch (error) {
@@ -60,7 +78,7 @@ export async function cancelQuestionSaved(
 }
 
 /**
- * Get saved record id by userId & questionId
+ * Get saved quesiton id by userId & questionId
  */
 export async function getSavedIdbyUidAndQid(
   userId: number,
@@ -85,6 +103,32 @@ export async function getSavedIdbyUidAndQid(
     return row ? row.id : null;
   } catch (error) {
     console.error('[db_question_saved/getSavedIdByUidAndQid]', error);
+    throwError('Query user_question_saved failed');
+  }
+}
+
+/**
+ * Get all saved question ids by userId
+ */
+export async function getSavedQidByUid(userId: number): Promise<number[]> {
+  logCall();
+  try {
+    const pool = getDBPool();
+
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `
+      SELECT question_id
+      FROM user_question_saved
+      WHERE user_id = ?
+      `,
+      [userId],
+    );
+
+    return (rows as (RowDataPacket & { question_id: number })[]).map(
+      (r) => r.question_id,
+    );
+  } catch (error) {
+    console.error('[db_question_saved/getSavedQidByUid]', error);
     throwError('Query user_question_saved failed');
   }
 }

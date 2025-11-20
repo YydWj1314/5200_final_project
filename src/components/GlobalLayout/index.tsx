@@ -82,7 +82,7 @@ export default function BasicLayout({ children }: Props) {
           {/* 左：Logo + Title */}
           <Link href="/" style={s.brand}>
             <Image src="/assets/logo.svg" alt="logo" width={28} height={28} />
-            <span style={s.brandTitle}>ShuaTiXia</span>
+            <span style={s.brandTitle}>SqlMaster</span>
           </Link>
 
           {/* 中：导航菜单 */}

@@ -11,26 +11,28 @@ export async function getBankFavoritesByUid(userId: number) {
   logCall();
   try {
     const pool = getDBPool();
-
-    // 关联 user_bank_favorites + question_banks
-    // 只要未删除的题库，按收藏时间倒序
     const [rows] = await pool.query(
       `
-      SELECT 
+      SELECT
         qb.id,
         qb.title,
-        qb.description
+        qb.topic,          
+        qb.description,
+        qb.user_id,
+        qb.created_at,
+        qb.updated_at,
+        qb.edited_at,
+        qb.is_delete
       FROM user_bank_favorites ubf
       JOIN question_banks qb
         ON ubf.bank_id = qb.id
       WHERE ubf.user_id = ?
         AND qb.is_delete = 0
-      ORDER BY ubf.created_at DESC
+      ORDER BY ubf.created_at DESC;
       `,
       [userId],
     );
 
-    // rows 本身就是 banks 数组
     return rows as any[];
   } catch (error) {
     console.error('[libs/db_bank_favorites/getBankFavoritesByUid]', error);

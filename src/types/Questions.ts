@@ -1,37 +1,51 @@
-// 如果你的 int8 通过驱动返回为字符串，可把 Int8 改成 string
-
+/**
+ * Raw Question row from the database.
+ * Matches the structure of the `questions` table in MySQL.
+ */
 export interface Question {
-  id: number; // int8
-  title: string | null; // varchar
-  content: string; // text
-  tags: string[] | null; // jsonb（建议存 string[]）
-  answer: string | null; // text
-  user_id: number | null; // int8
-  edited_at: string | null; // timestamptz
-  created_at: string; // timestamptz
-  updated_at: string; // timestamptz
-  is_delete: boolean; // bool
+  id: number; // BIGINT
+  title: string | null; // VARCHAR
+  content: string; // TEXT
+  tags: string[] | null; // JSON
+  answer: string | null; // TEXT
+
+  user_id: number | null; // BIGINT
+  edited_at: string | null; // DATETIME (ISO string)
+  created_at: string; // DATETIME
+  updated_at: string; // DATETIME
+
+  is_delete: boolean; // TINYINT(1) mapped to boolean
+  saved_count: number; // BIGINT
 }
 
+/**
+ * Minimal question shape for display in a list (e.g. saved questions).
+ */
 export interface QuestionInShowList {
-  id: number; // int8
-  title: string | null; // varchar
-  content: string; // text
-  tags: string[] | null; // jsonb（建议存 string[]）
-  answer: string | null; // text
+  id: number;
+  title: string | null;
+  content: string;
+  tags: string[] | null;
+  answer: string | null;
 }
 
+/**
+ * Question detail view — same fields as show list, separated for clarity.
+ */
 export interface QuestionInDetail {
-  id: number | string; // int8
-  title: string | null; // varchar
-  content: string; // text
-  tags: string[] | null; // jsonb（建议存 string[]）
-  answer: string | null; // text
+  id: number;
+  title: string | null;
+  content: string;
+  tags: string[] | null;
+  answer: string | null;
 }
 
+/**
+ * Lightweight structure for "Top Saved Questions" ranking.
+ */
 export interface QuestionInTopSaved {
-  id: number; // int8
-  content: string | null;
+  id: number;
+  content: string;
   tags: string[] | null;
   saved_count: number;
 }

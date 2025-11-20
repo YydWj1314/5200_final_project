@@ -150,9 +150,9 @@ export default function MyBanksClient({
                   topic={groupKey}
                   banks={banks}
                   isEditMode={isEditMode}
-                  selected={selectedItems} // ✅ 受控
-                  onToggleOne={onToggleOne} // ✅ 单个
-                  onToggleAll={onToggleAll} // ✅ 全选
+                  selected={selectedItems}
+                  onToggleOne={onToggleOne}
+                  onToggleAll={onToggleAll}
                 />
               </List.Item>
             );

@@ -61,6 +61,6 @@ export async function POST(req: Request) {
     );
   }
 
-  // 5) 成功返回
+  // 5) return success
   return NextResponse.json({ ok: true, userId: newId });
 }

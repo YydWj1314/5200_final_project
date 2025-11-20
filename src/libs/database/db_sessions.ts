@@ -6,14 +6,14 @@ import { getDBPool } from '../db';
 
 /**
  * Insert session into db (MySQL)
- * @param sid       原始 session id（未哈希）
- * @param userId    用户 id
- * @param expiresAt 过期时间（ISO 字符串：如 new Date().toISOString()）
+ * @param sid       unhashed session id
+ * @param userId    user id
+ * @param expiresAt expirated time
  */
 export async function insertSession(
   sid: string,
   userId: number,
-  expiresAt: string, // ISO 字符串
+  expiresAt: string, // ISO string
 ): Promise<{ hashedSid: string; expiresAt: string }> {
   logCall();
 
@@ -34,7 +34,7 @@ export async function insertSession(
       throwError('Invalid expiresAt');
     }
 
-    // 转成 MySQL DATETIME 格式：YYYY-MM-DD HH:MM:SS
+    // transfre MySQL DATETIME ：YYYY-MM-DD HH:MM:SS
     const mysqlExpiresAt = expiryDate
       .toISOString() // 2025-11-27T02:28:40.681Z
       .slice(0, 19) // 2025-11-27T02:28:40
@@ -61,7 +61,7 @@ export async function insertSession(
 
 /**
  * Get user id by hashed session id
- * @param hashedSid 已哈希的 session id
+ * @param hashedSid hashed session id
  */
 export async function getUserIdBySession(
   hashedSid: string,
@@ -69,7 +69,6 @@ export async function getUserIdBySession(
   logCall();
 
   if (!hashedSid) {
-    // 没有 sid 本身就代表未登录，直接返回 null，不用抛错
     return null;
   }
 
@@ -89,7 +88,7 @@ export async function getUserIdBySession(
 
     const row = rows[0] as (RowDataPacket & { user_id: number }) | undefined;
     if (!row) {
-      // session 不存在 / 过期：正常情况，返回 null
+      // session not exist/expired, return null
       return null;
     }
 
@@ -102,8 +101,8 @@ export async function getUserIdBySession(
 
 /**
  * Delete session by sid (原始 sid)
- * @param sid 未哈希 session id
- * @returns 删除的条数
+ * @param sid unhashed session id
+ * @returns numbers of item deleted
  */
 export async function deleteSessionBySid(sid: string): Promise<number> {
   logCall();

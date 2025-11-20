@@ -1,24 +1,28 @@
 // app/api/questions/top-saved/route.ts
 import { NextResponse } from 'next/server';
-import { createClient } from '@/libs/utils/supabase/app_router/server';
 import { logCall } from '@/libs/utils/logUtils';
+import { getTopSavedQuestions } from '@/libs/database/db_questions';
 
 const LIMIT = 10;
 
-export async function GET(req: Request) {
+export const revalidate = 0;
+export const dynamic = 'force-dynamic';
+
+export async function GET() {
   logCall();
+
   try {
-    const sb = await createClient();
+    const questions = await getTopSavedQuestions(LIMIT);
 
-    const { data, error } = await sb
-      .from('question_saved')
-      .select('id, content, tags, saved_count')
-      .order('saved_count', { ascending: false })
-      .limit(LIMIT);
-
-    return NextResponse.json({ ok: true, questions: data }, { status: 200 });
+    return NextResponse.json(
+      {
+        ok: true,
+        questions,
+      },
+      { status: 200 },
+    );
   } catch (e: any) {
-    console.error(e);
+    console.error('[api/questions/top-saved] error:', e);
     const msg = e?.message ?? 'Unknown error';
     return NextResponse.json({ ok: false, error: msg }, { status: 500 });
   }

@@ -95,7 +95,7 @@ export async function addUser(
       [normalizedEmail, username, hashedPassword],
     );
 
-    // 邮箱重复（唯一约束）— MySQL 错误代码 1062
+    // check email
     if (!result || !result.insertId) {
       throw new Error('E_ADD_USER_FAILED');
     }
