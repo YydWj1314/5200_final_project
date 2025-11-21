@@ -27,23 +27,31 @@ gcloud sql connect neu-test-db --user=root
 
 ```bash
 项目文件夹/
-  .env.local      👈 放这里
+  .env.local      👈 放这里（此文件不会被提交到 git）
   package.json
   next.config.mjs
   src/
   ...
 ```
 
+**重要：** `.env.local` 文件包含敏感信息（数据库密码、API key），已被 `.gitignore` 忽略，不会被提交到 git 仓库。
+
 文件内容：
 
 ```bash
-DB_HOST=34.176.110.132           # GCP IP
-DB_PORT=3306
-DB_USER= 用户名
-DB_PASSWORD= 密码
+# GCP Cloud SQL 数据库配置
+DB_HOST=localhost              # 使用 Cloud SQL Proxy 时填 localhost
+DB_PORT=3307                  # Cloud SQL Proxy 端口
+DB_USER=your_db_user          # 数据库用户名
+DB_PASSWORD=your_db_password  # 数据库密码
 DB_NAME=5200_final_project
 
+# OpenAI API Key（可选，用于 AI 查询功能）
+# 请从 https://platform.openai.com/api-keys 获取你的 API key
+OPENAI_API_KEY=your_openai_api_key_here
 ```
+
+**提示：** 可以参考 `.env.example` 文件创建你的 `.env.local` 文件。
 
 ### run the app:
 
