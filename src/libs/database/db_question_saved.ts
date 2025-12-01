@@ -24,15 +24,7 @@ export async function insertQuestionSaved(
       `,
       [userId, questionId],
     );
-    // saved_count + 1
-    await pool.query(
-      `
-      UPDATE questions
-      SET saved_count = saved_count + 1
-      WHERE id = ?
-      `,
-      [questionId],
-    );
+    // Note: saved_count is automatically updated by UpdateQuestionSavedCount_Insert trigger
 
     return result.affectedRows ?? 0;
   } catch (error) {
@@ -60,15 +52,7 @@ export async function cancelQuestionSaved(
       `,
       [userId, questionId],
     );
-    // saved_count - 1
-    await pool.query(
-      `
-      UPDATE questions
-      SET saved_count = GREATEST(saved_count - 1, 0)
-      WHERE id = ?
-      `,
-      [questionId],
-    );
+    // Note: saved_count is automatically updated by UpdateQuestionSavedCount_Delete trigger
 
     return result.affectedRows ?? 0;
   } catch (error) {

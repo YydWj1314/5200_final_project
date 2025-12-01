@@ -196,3 +196,36 @@ CREATE TABLE sessions (
   INDEX idx_sessions_expires (expires_at)
 );
 ```
+
+### Database Triggers
+
+After creating the tables above, run `database_triggers.sql` to add triggers for automatic data integrity.
+
+**Method 1: Using gcloud sql connect (Recommended)**
+
+```bash
+# Connect directly to Cloud SQL
+gcloud sql connect neu-test-db --user=admin1
+
+# Once connected, run:
+USE 5200_final_project;
+SOURCE database_triggers.sql;
+# Or copy and paste the SQL content directly
+```
+
+**Method 2: Using Cloud SQL Proxy + local mysql client**
+
+```bash
+# Terminal 1: Start Cloud SQL Proxy (keep it running)
+./start-proxy.sh
+
+# Terminal 2: Connect using local mysql client
+mysql -h 127.0.0.1 -P 3307 -u admin1 -p 5200_final_project < database_triggers.sql
+```
+
+**Triggers included:**
+- **UpdateBankQuestionCount**: Automatically updates `question_banks.total_questions` when questions are added/removed from banks
+- **UpdateQuestionSavedCount**: Automatically updates `questions.saved_count` when users save/unsave questions
+- **PreventDuplicateQuestionSaved**: Blocks duplicate (user_id, question_id) save attempts
+
+These triggers push integrity rules into the database layer, ensuring data consistency even if application code is bypassed.
