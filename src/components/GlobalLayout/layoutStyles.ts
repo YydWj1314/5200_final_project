@@ -2,12 +2,12 @@ import type { CSSProperties } from 'react';
 
 type Styles = Record<string, CSSProperties>;
 
-/** 统一高度常量 */
+/** Unified height constants */
 export const HEADER_HEIGHT = 64; // Header height
-export const FOOTER_HEIGHT = 80; // Footer height（可按需改）
+export const FOOTER_HEIGHT = 80; // Footer height (can be modified as needed)
 
 export const layoutStyles: Styles = {
-  /** 外层布局：撑满视口，高度不足时把页脚推到底部 */
+  /** Outer layout: fill viewport, push footer to bottom when height is insufficient */
   layout: {
     minHeight: '100vh',
     display: 'flex',
@@ -16,7 +16,7 @@ export const layoutStyles: Styles = {
     background: '#f5f6f8',
   },
 
-  /** 固定头部（全宽） */
+  /** Fixed header (full width) */
   header: {
     position: 'fixed',
     top: 'env(safe-area-inset-top, 0)',
@@ -35,7 +35,7 @@ export const layoutStyles: Styles = {
     zIndex: 1000,
   },
 
-  /** 头部内的品牌区 */
+  /** Brand area inside header */
   brand: {
     display: 'flex',
     alignItems: 'center',
@@ -44,7 +44,7 @@ export const layoutStyles: Styles = {
   },
   brandTitle: { fontWeight: 700, color: '#000', fontSize: 18 },
 
-  /** 菜单/导航（在 header 内横向撑开） */
+  /** Menu/Navigation (expands horizontally within header) */
   menu: {
     flex: 1,
     minWidth: 40,
@@ -53,8 +53,8 @@ export const layoutStyles: Styles = {
   },
 
   /**
-   * 内容容器：顶部留出 header 的高度；左右居中；底部预留一点空间避免和页脚贴太紧
-   * 如果你用的是 Ant Layout.Content，把这个样式放在 Content 上
+   * Content container: reserve header height at top; center horizontally; reserve space at bottom to avoid tight footer
+   * If you're using Ant Layout.Content, apply this style to Content
    */
   content: {
     flex: 1,
@@ -65,14 +65,14 @@ export const layoutStyles: Styles = {
     background: '#f5f6f8',
   },
 
-  /** 内层内容最大宽度容器 */
+  /** Inner content max-width container */
   contentInner: {
     maxWidth: 1200,
     margin: '0 auto',
     width: '100%',
   },
 
-  /** 粘底页脚（不固定），内容不足时自然在底部 */
+  /** Sticky footer (not fixed), naturally at bottom when content is insufficient */
   footer: {
     height: FOOTER_HEIGHT,
     display: 'flex',
@@ -85,7 +85,7 @@ export const layoutStyles: Styles = {
     paddingRight: `calc(16px + env(safe-area-inset-right, 0px))`,
   },
 
-  /** 搜索框（示例） */
+  /** Search box (example) */
   searchBox: {
     display: 'flex',
     alignItems: 'center',
@@ -102,7 +102,7 @@ export const layoutStyles: Styles = {
     background: 'transparent',
   },
 
-  /** 可选：头部下面的占位（如果你不想用 content 的 paddingTop 方案） */
+  /** Optional: spacer below header (if you don't want to use content's paddingTop approach) */
   headerSpacer: {
     height: HEADER_HEIGHT,
   },

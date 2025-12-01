@@ -4,8 +4,8 @@ function escapeRegex(s: string) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-// 把用户输入切成若干关键词（去重、去空）
-// 英文按空格/逗号切；中文直接把原句当一个整体关键词即可
+// Split user input into keywords (deduplicate, remove empty)
+// English: split by space/comma; Chinese: treat entire sentence as one keyword
 export function tokenize(q: string) {
   const raw = (q ?? '').trim();
   if (!raw) return [] as string[];
@@ -13,18 +13,18 @@ export function tokenize(q: string) {
     .split(/[\s,，]+/)
     .map((s) => s.trim())
     .filter(Boolean);
-  // 没有空格时（常见中文），保留整句作为关键词
+  // When no spaces (common in Chinese), keep entire sentence as keyword
   if (parts.length === 1) return parts;
-  // 去重
+  // Deduplicate
   return Array.from(new Set(parts));
 }
 
-// 在一段文本里高亮 tokens；返回 React 片段（无需 dangerouslySetInnerHTML）
+// Highlight tokens in text; returns React fragments (no need for dangerouslySetInnerHTML)
 export function highlightText(text: string, tokens: string[]) {
   if (!text || !tokens?.length) return text;
   const pattern = `(${tokens.map(escapeRegex).join('|')})`;
-  const re = new RegExp(pattern, 'gi'); // 忽略大小写
-  const slices = text.split(re); // split 会保留捕获组，奇数位就是命中片段
+  const re = new RegExp(pattern, 'gi'); // Case insensitive
+  const slices = text.split(re); // split preserves capture groups, odd indices are matches
   return slices.map((part, i) =>
     i % 2 === 1 ? (
       <mark key={i} style={{ padding: 0 }}>
@@ -36,7 +36,7 @@ export function highlightText(text: string, tokens: string[]) {
   );
 }
 
-// 生成“命中附近的摘要”（避免整段太长）
+// Generate "summary around matches" (avoid entire paragraph being too long)
 export function makeSnippet(text: string, tokens: string[], ctx = 60) {
   if (!text || !tokens?.length) return (text ?? '').slice(0, 160);
   const re = new RegExp(tokens.map(escapeRegex).join('|'), 'i');

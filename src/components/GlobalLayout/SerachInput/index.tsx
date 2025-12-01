@@ -18,7 +18,7 @@ export function SearchInput() {
 
   return (
     <Row
-      // 只阻止冒泡，不要 preventDefault，保证能获得焦点
+      // Only stop propagation, don't preventDefault, to ensure focus
       onMouseDown={(e) => e.stopPropagation()}
       style={{ ...s.searchBox, border: `1px solid ${token.colorBorder}` }}
     >
@@ -26,7 +26,7 @@ export function SearchInput() {
         style={s.searchInput}
         value={q}
         onChange={(e) => setQ(e.target.value)}
-        onPressEnter={toggleSearch} // 回车触发
+        onPressEnter={toggleSearch} // Trigger on Enter
         suffix={
           <Button
             type="text"

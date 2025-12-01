@@ -4,7 +4,7 @@ import { createClient } from '@/libs/utils/supabase/app_router/server';
 import { getSavedQuestionsByUserId } from '@/libs/database/db_questions';
 import { QuestionInShowList } from '@/types/Questions';
 
-// 仅 GET：返回当前登录用户收藏的题目（按创建时间倒序）
+// GET only: Returns questions favorited by current logged-in user (ordered by creation time DESC)
 export async function GET() {
   try {
     const userId = await authSessionInServer();

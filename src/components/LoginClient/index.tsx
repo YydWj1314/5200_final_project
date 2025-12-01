@@ -21,7 +21,7 @@ export function LoginClient() {
         body: JSON.stringify(values),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) return message.error(data.error || '登录失败');
+      if (!res.ok) return message.error(data.error || 'Login failed');
 
       await mutate('/api/auth/me');
       message.success('Login successfully');

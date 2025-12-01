@@ -30,9 +30,9 @@ export function SearchClient({
   // Call back from header component
   // Use useCallback avoid creating too much variables
   const toggleTagsCallback = useCallback((newSelectedTags: Set<string>) => {
-    // 复制一份，确保引用变化（Set 是引用类型）
+    // Create a copy to ensure reference change (Set is a reference type)
     setSelectedTags((prev) => {
-      // 幂等更新：值没变就不更新
+      // Idempotent update: don't update if value hasn't changed
       if (
         prev.size === newSelectedTags.size &&
         [...prev].every((t) => newSelectedTags.has(t))

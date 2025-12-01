@@ -2,13 +2,13 @@
 'use client';
 import useSWR from 'swr';
 
-// API 返回格式
+// API response format
 type MeResponse = {
   ok: boolean;
   user: User | null;
 };
 
-// 用户对象
+// User object
 type User = {
   id: number;
   user_account: string;

@@ -22,7 +22,7 @@ export async function DELETE() {
     const count = await deleteSessionBySid(sid);
 
     // response and delete cookie session
-    const res = NextResponse.json({ ok: true, count }); // affected 可能是 0 或 1
+    const res = NextResponse.json({ ok: true, count }); // affected may be 0 or 1
     res.cookies.delete(SESSION_COOKIE_NAME);
     return res;
   } catch (e: any) {

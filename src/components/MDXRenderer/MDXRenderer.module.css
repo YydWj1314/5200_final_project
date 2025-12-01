@@ -1,32 +1,32 @@
-/* 整个代码块外层框 */
+/* Outer frame for entire code block */
 .root [data-rehype-pretty-code-figure] {
   margin: 1.25em 0;
-  border: 1px solid #e5e7eb; /* 灰色边框 */
+  border: 1px solid #e5e7eb; /* Gray border */
   border-radius: 8px;
   overflow: hidden;
   background: var(--shiki-light-bg);
   background: #f9fafb;
 }
 
-/* pre 内部样式 */
+/* pre internal styles */
 .root [data-rehype-pretty-code-figure] pre {
-  margin: 0; /* 去掉默认外边距 */
-  padding: 12px 16px; /* 内边距 */
+  margin: 0; /* Remove default margin */
+  padding: 12px 16px; /* Padding */
   overflow-x: auto;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.9rem;
   line-height: 1.6;
 }
 
-/* token 上色（延续之前的规则） */
+/* Token coloring (continuing previous rules) */
 .root [data-rehype-pretty-code-figure] [data-line] > span {
   color: var(--shiki-light);
 }
 
-/* 行内代码（不是代码块） */
+/* Inline code (not code block) */
 .root :not(pre) > code {
-  background: #e6eeff; /* 浅灰色 (Tailwind gray-100) */
-  color: #111827; /* 深灰文字 */
+  background: #e6eeff; /* Light gray (Tailwind gray-100) */
+  color: #111827; /* Dark gray text */
   padding: 0.15em 0.4em;
   border-radius: 4px;
   font-size: 0.9em;

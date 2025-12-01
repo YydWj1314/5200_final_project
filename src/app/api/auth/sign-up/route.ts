@@ -6,7 +6,7 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
   const { email, username, password, confirm } = body || {};
 
-  // 1) 基础校验
+  // 1) Basic validation
   if (!email || !username || !password || !confirm) {
     return NextResponse.json(
       { ok: false, error: 'Missing necessary fields' },
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     );
   }
 
-  // 2) email 格式兜底校验
+  // 2) Email format validation
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   if (!emailOk) {
     return NextResponse.json(
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     );
   }
 
-  // 3) email 唯一性检查
+  // 3) Email uniqueness check
   const existUserId = await getUidByEmail(email);
   if (existUserId) {
     return NextResponse.json(
@@ -39,14 +39,14 @@ export async function POST(req: Request) {
     );
   }
 
-  // 4) 插入用户（**一定要 await**）
+  // 4) Insert user (**must await**)
   const hashedPassword = await bcrypt.hash(password, 10);
 
   let newId: number;
   try {
     newId = await addUser(email, username, hashedPassword);
   } catch (e: any) {
-    // 和 db_user.ts 里的约定保持一致：
+    // Keep consistent with db_user.ts conventions:
     // E_DUPLICATE_EMAIL / E_ADD_USER_FAILED
     if (e.message === 'E_DUPLICATE_EMAIL') {
       return NextResponse.json(

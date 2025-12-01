@@ -32,8 +32,8 @@ export default function MyBanksClient({
   banks: GroupedBanks;
   questions: QuestionInShowList[];
 }) {
-  // 把 { [groupKey(topic)]: Bank...} obj
-  //  转成数组 [[topic, banks] ...]，便于 List 渲染
+  // Convert { [groupKey(topic)]: Bank...} obj
+  //   to array [[topic, banks] ...] for List rendering
   const bankGroupArr = Object.entries(banks);
   const [isEditMode, setIsEditMode] = useState(false);
   const router = useRouter();
@@ -59,7 +59,7 @@ export default function MyBanksClient({
       throw new Error('Operation Failed');
     }
     // Get response
-    const data = await res.json(); //  { ok: true, count: ... }
+    const data = await res.json(); // { ok: true, count: ... }
     setSelectedItems(new Set());
     router.refresh(); // refresh page
     message.success('Delete successfully');
@@ -136,13 +136,13 @@ export default function MyBanksClient({
           style={{
             maxWidth: 1188,
             margin: '0 auto',
-            paddingInline: 18, // = gutter/2，兜住 .ant-row 的负外边距
+            paddingInline: 18, // = gutter/2, offset .ant-row's negative margin
           }}
           dataSource={bankGroupArr}
           rowKey={([groupKey]) => groupKey}
           // === Render list ===
           renderItem={([groupKey, banks]) => {
-            // TODO 可选：拿第一个有图片的 bank 作为封面
+            // TODO Optional: use first bank with image as cover
             // const coverSrc = banks.find((b) => b.picture)?.picture ?? null;
             return (
               <List.Item style={{ display: 'flex', justifyContent: 'center' }}>

@@ -3,12 +3,12 @@ export function logCall(level: 'log' | 'warn' | 'error' = 'log') {
   const stack = new Error().stack?.split('\n') ?? [];
   const callerLine = stack[2] ?? '';
 
-  // 提取 funcName + filePath + line
+  // Extract funcName + filePath + line
   const match = callerLine.match(/at\s+(\S+)\s+\((.*):(\d+):(\d+)\)/);
   if (match) {
     const [, func, file, line] = match;
 
-    // 只保留 "project/" 后面的部分
+    // Keep only the part after "project/"
     const shortFile = file.includes('project')
       ? file.split('project')[1].replace(/^[/\\]/, '')
       : file;

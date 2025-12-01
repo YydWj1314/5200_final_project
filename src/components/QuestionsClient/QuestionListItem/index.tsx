@@ -44,17 +44,17 @@ export default function QuestionListItem({
         }
       />
 
-      {/* 答案区：按需改样式/是否折叠 */}
+      {/* Answer area: modify style/collapse as needed */}
       <div style={{ marginTop: 12 }}>
         <Paragraph
-          ellipsis={{ rows: 2, expandable: false }} // 最多两行，超出省略
+          ellipsis={{ rows: 2, expandable: false }} // Max 2 rows, ellipsis if overflow
           style={{ marginBottom: 0 }}
         >
-          {question.answer ?? '（暂无）'}
+          {question.answer ?? '(None)'}
         </Paragraph>
       </div>
 
-      {/* 右下角收藏按钮 */}
+      {/* Bottom right favorite button */}
       <div style={{ position: 'absolute', bottom: 8, right: 16 }}>
         <Space>
           <Button

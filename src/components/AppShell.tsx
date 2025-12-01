@@ -5,9 +5,9 @@ import BasicLayout from '@/components/GlobalLayout';
 import { usePathname, useRouter } from 'next/navigation';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
-  // 你原来的 InitLayout 逻辑放这
+  // Put your original InitLayout logic here
   // const doInit = useCallback(() => {
-  //   console.log('hello 欢迎来到我的项目');
+  //   console.log('hello welcome to my project');
   // }, []);
 
   // useEffect(() => {

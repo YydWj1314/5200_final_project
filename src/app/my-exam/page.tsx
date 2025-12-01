@@ -10,13 +10,13 @@ export default async function MyQuestionsPage() {
   const userId = await authSessionInServer();
   if (!userId) redirect('/login');
 
-  // 如果函数直接返回数组：
+  // If function directly returns array:
   // const items = await getSavedQuestionsByUserId(userId);
 
-  // 如果函数返回对象：
+  // If function returns object:
   const myQuestions = await getSavedQuestionsByUserId(userId);
 
-  //  在 server 端把每道题的 content/answer 渲染成 md React 节点：
+  // Render each question's content/answer as md React nodes on server side:
   const contentNodes = myQuestions.map((q) => (
     <MDXRenderer key={`c-${q.id}`} md={q.content ?? ''} />
   ));

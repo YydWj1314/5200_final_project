@@ -6,7 +6,7 @@ type IdListResp = { ok: boolean; ids: number[] };
 const EMPTY_IDS: number[] = [];
 
 export function useQuestionSaved(questionId?: number) {
-  // 1) 全局只拉一次“已收藏ID列表”
+  // 1) Fetch "saved ID list" globally only once
   const {
     data: idList,
     isLoading: idsLoading,
@@ -15,14 +15,14 @@ export function useQuestionSaved(questionId?: number) {
     revalidateOnFocus: true,
   });
 
-  // 2) 用 Set O(1) 判断是否已收藏
+  // 2) Use Set O(1) to check if already saved
   const ids = useMemo(() => idList?.ids ?? EMPTY_IDS, [idList?.ids]);
   const set = useMemo(() => new Set(ids), [ids]);
 
   const qid = Number(questionId);
   const saved = Number.isFinite(qid) && set.has(qid);
 
-  // 4) 切换收藏：只打 POST/DELETE，并乐观更新 ID 列表
+  // 4) Toggle save: only POST/DELETE, and optimistically update ID list
   const [pending, setPending] = useState(false);
   const isLoading = idsLoading || pending;
 
@@ -32,7 +32,7 @@ export function useQuestionSaved(questionId?: number) {
     const next = !saved;
     setPending(true);
 
-    // 乐观改本地 id 列表
+    // Optimistically update local ID list
     await mutateIds(
       (prev) => {
         const curr = prev?.ids ?? [];
@@ -50,12 +50,12 @@ export function useQuestionSaved(questionId?: number) {
       });
       if (!res.ok) throw new Error('network');
 
-      // 如有“我的收藏列表”接口，这里也触发一下重拉
-      // await globalMutate('/api/saved'); // 可选
-      // 或者直接重拉ID列表以校准
+      // If there's a "my favorites list" endpoint, trigger refresh here too
+      // await globalMutate('/api/saved'); // Optional
+      // Or directly refresh ID list to sync
       await mutateIds();
     } catch (e) {
-      // 失败回滚
+      // Rollback on failure
       await mutateIds(
         (prev) => {
           const curr = prev?.ids ?? [];

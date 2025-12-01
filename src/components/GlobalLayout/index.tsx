@@ -37,11 +37,11 @@ export default function BasicLayout({ children }: Props) {
   const { token } = theme.useToken();
   const year = new Date().getFullYear();
 
-  // 拉 session 用户
+  // Get session user
   const { me, isLoading, mutate } = useMe();
   // console.log('Global:', me);
 
-  // 登录后通用菜单
+  // Common menu after login
   const commonItems: MenuProps['items'] = [
     {
       key: 'profile',
@@ -67,7 +67,7 @@ export default function BasicLayout({ children }: Props) {
     },
   ];
 
-  // 管理员菜单 TODO
+  // Admin menu TODO
   const adminItems: MenuProps['items'] = [
     { key: 'dashboard', label: 'Admin', onClick: () => router.push('/admin') },
     { type: 'divider' },
@@ -77,15 +77,15 @@ export default function BasicLayout({ children }: Props) {
   return (
     <>
       <Layout>
-        {/* 顶部栏 */}
+        {/* Top Bar */}
         <Header style={s.header}>
-          {/* 左：Logo + Title */}
+          {/* Left: Logo + Title */}
           <Link href="/" style={s.brand}>
             <Image src="/assets/logo.svg" alt="logo" width={28} height={28} />
             <span style={s.brandTitle}>SqlMaster</span>
           </Link>
 
-          {/* 中：导航菜单 */}
+          {/* Center: Navigation Menu */}
           <Menu
             mode="horizontal"
             selectedKeys={[pathname]}
@@ -94,7 +94,7 @@ export default function BasicLayout({ children }: Props) {
             style={s.menu}
           />
 
-          {/* 右：搜索 + 登录/头像 */}
+          {/* Right: Search + Login/Avatar */}
           <Row gutter={[12, 12]} align="middle" wrap={false}>
             <Col>
               <SearchInput />
@@ -107,7 +107,7 @@ export default function BasicLayout({ children }: Props) {
                   Loading...
                 </Button>
               ) : !me ? (
-                // 2. 没有 me 或者没有 user_role => 未登录
+                // 2. No me or no user_role => Not logged in
                 <Button
                   type="primary"
                   shape="round"
@@ -117,9 +117,9 @@ export default function BasicLayout({ children }: Props) {
                   Login
                 </Button>
               ) : (
-                // 3. 有 me 且有 user_role => 已登录
+                // 3. Has me and user_role => Logged in
                 <Dropdown.Button menu={{ items: commonItems }}>
-                  <Space>{me.user_name ?? '无名侠客'}</Space>
+                  <Space>{me.user_name ?? 'Anonymous'}</Space>
                 </Dropdown.Button>
               )}
             </Col>
@@ -132,12 +132,12 @@ export default function BasicLayout({ children }: Props) {
 
       {/* Content */}
       <Layout style={s.layout}>
-        {/* 内容区（自适应撑开） */}
+        {/* Content Area (auto-expand) */}
         <Content style={s.content}>
           <div style={s.contentInner}>{children}</div>
         </Content>
 
-        {/* 底部（贴底） */}
+        {/* Footer (sticky bottom) */}
         <Footer style={s.footer}>
           <div>
             © {year} Made with curiosity, patience & love <br />

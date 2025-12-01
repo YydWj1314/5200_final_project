@@ -27,7 +27,7 @@ export default async function MyBanksPage() {
   // Group by topic
   const groupedBankFavorutes: Record<string, BankInShowList[]> = groupBy(
     bankFavorites,
-    (b) => b.topic?.trim() || '未命名题库',
+    (b) => b.topic?.trim() || 'Unnamed Bank',
   );
 
   return (

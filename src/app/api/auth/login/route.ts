@@ -39,17 +39,17 @@ export async function POST(req: Request) {
       );
     }
 
-    // 校验密码
+    // Verify password
     const ok = await bcrypt.compare(password, user.user_password);
     if (!ok) {
       return NextResponse.json({ error: 'Wrong password' }, { status: 401 });
     }
 
-    // 创建 session & cookie
+    // Create session & cookie
     const { sid, expiresAt } = createSession();
     await storeSessionInResponse(sid);
 
-    // 存 session 到 DB（你已经改成 MySQL 版了）
+    // Store session to DB (already converted to MySQL version)
     const { hashedSid } = await insertSession(sid, user.id, expiresAt);
 
     if (!hashedSid) {

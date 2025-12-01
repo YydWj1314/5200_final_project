@@ -45,7 +45,7 @@ export default function ExamClient({
   answerNodes: ReactNode[];
 }) {
   const qn = questions.length;
-  const [qi, setQi] = useState(0); // 当前题 index
+  const [qi, setQi] = useState(0); // Current question index
   const [isAnswerHidden, setIsAnswerHidden] = useState(true);
   const [fontSize, setFontSize] = useState(16);
   const [marks, setMarks] = useState<Set<number>>(new Set());
@@ -62,7 +62,7 @@ export default function ExamClient({
     toggleFavorite,
   } = useBankFavorites(bankId);
 
-  // 切题时自动隐藏答案
+  // Auto-hide answer when switching questions
   useEffect(() => {
     setIsAnswerHidden(true);
   }, [qi]);
@@ -95,7 +95,7 @@ export default function ExamClient({
 
   return (
     <Layout className={styles.fullHeightLayout}>
-      {/* 顶部 */}
+      {/* Header */}
       <Header className={styles.header}>
         <Row className={styles.headerInner}>
           <Col className={styles.bankTitle}>My questions</Col>
@@ -113,19 +113,19 @@ export default function ExamClient({
         </Row>
       </Header>
 
-      {/* 内容区 */}
+      {/* Content Area */}
       <Content className={styles.contentArea}>
         <div className={styles.wrapper}>
           <Row gutter={24} align="stretch">
-            {/* 左侧：题目 + 答案 */}
+            {/* Left: Question + Answer */}
             <Col xs={24} md={16}>
               <Card className={styles.mainCard} bodyStyle={{ padding: 16 }}>
-                {/* 题干区：flex-grow + 内部滚动 */}
+                {/* Question Area: flex-grow + internal scroll */}
                 <div className={styles.questionPane} style={{ fontSize }}>
                   {contentNodes[qi]}
                 </div>
 
-                {/* 操作区：固定高度 */}
+                {/* Action Bar: fixed height */}
                 <div className={styles.actionBar}>
                   <Button
                     className={[
@@ -192,7 +192,7 @@ export default function ExamClient({
                   </div>
                 </div>
 
-                {/* 答案区：flex-grow + 内部滚动；隐藏时高度为 0 */}
+                {/* Answer Area: flex-grow + internal scroll; height 0 when hidden */}
                 <div
                   className={`${styles.answerPane} ${isAnswerHidden ? styles.isHidden : ''}`}
                   style={{ fontSize }}
@@ -202,7 +202,7 @@ export default function ExamClient({
               </Card>
             </Col>
 
-            {/* 右侧：答题卡 + 设置（粘性吸顶） */}
+            {/* Right: Answer Sheet + Settings (sticky top) */}
             <Col xs={24} md={8}>
               <div className={styles.rightSticky}>
                 <Card

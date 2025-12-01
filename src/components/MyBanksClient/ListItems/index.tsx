@@ -29,7 +29,7 @@ export default function MyBankListItem({
         wrap={false}
         style={{ width: '100%' }}
       >
-        {/* 左侧：标题 + 摘要 + 标签 */}
+        {/* Left: Title + Summary + Tags */}
         <Col flex="auto" style={{ minWidth: 0 }}>
           <Tooltip title={question.title} mouseEnterDelay={0.2}>
             <Link
@@ -67,7 +67,7 @@ export default function MyBankListItem({
           )}
         </Col>
 
-        {/* 右侧：收藏按钮 */}
+        {/* Right: Favorite Button */}
         <Col>
           <Button
             type="text"

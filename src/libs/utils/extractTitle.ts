@@ -3,9 +3,9 @@ export function extractTitle(md: string): string {
   const lines = md.split('\n');
   for (const line of lines) {
     if (line.startsWith('#')) {
-      return line.replace(/^#+\s*/, ''); // 去掉 Markdown 标题符号
+      return line.replace(/^#+\s*/, ''); // Remove Markdown heading symbols
     }
   }
-  // 如果没有标题，就取前 50 字
+  // If no title, take first 50 characters
   return md.slice(0, 50) + (md.length > 50 ? '...' : '');
 }

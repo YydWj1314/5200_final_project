@@ -30,9 +30,9 @@ export function SignUpClient() {
         return message.error(data?.error || 'Register failed');
       }
       message.success('Register successfully');
-      router.replace('/'); // 注册成功后跳转首页
+      router.replace('/'); // Redirect to homepage after successful registration
     } catch {
-      message.error('网络异常');
+      message.error('Network error');
     } finally {
       setLoading(false);
     }

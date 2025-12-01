@@ -9,8 +9,8 @@ export default function BankTopicCard({
   banks,
   isEditMode,
   selected, // selected id
-  onToggleOne, //  callback
-  onToggleAll, //  callback
+  onToggleOne, // callback
+  onToggleAll, // callback
 }: {
   topic: string;
   banks: BankInShowList[];
@@ -83,7 +83,7 @@ export default function BankTopicCard({
               {isEditMode ? (
                 <Checkbox
                   checked={selected.has(b.id)}
-                  onChange={(e) => onToggleOne(b.id, e.target.checked)} //  callback
+                  onChange={(e) => onToggleOne(b.id, e.target.checked)} // callback
                 >
                   {b.title}
                 </Checkbox>
@@ -94,7 +94,7 @@ export default function BankTopicCard({
           ))}
         </ul>
       ) : (
-        <div style={{ color: '#999' }}>暂无题目</div>
+        <div style={{ color: '#999' }}>No questions</div>
       )}
     </Card>
   );

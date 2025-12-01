@@ -27,7 +27,7 @@ export default function TopicCard({
           ))}
         </ul>
       ) : (
-        <div style={{ color: '#999' }}>暂无题目</div>
+        <div style={{ color: '#999' }}>No questions</div>
       )}
     </Card>
   );

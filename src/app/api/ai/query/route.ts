@@ -1,67 +1,73 @@
-import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
+import { NextRequest } from 'next/server';
+import { getOpenAIService } from '@/libs/llm/openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
+// Streaming response: Explain SQL question
 export async function POST(req: NextRequest) {
   try {
     const { question, answer } = await req.json();
 
     if (!question) {
-      return NextResponse.json(
-        { error: 'Question is required' },
-        { status: 400 }
+      return new Response(
+        JSON.stringify({ error: 'Question is required' }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
       );
     }
 
-    const prompt = `You are a helpful SQL tutor. A student is practicing SQL questions.
+    const openaiService = getOpenAIService();
+    const stream = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder();
 
-Question:
-${question}
+        try {
+          // Use streaming response
+          for await (const chunk of openaiService.explainSQLStream({
+            question,
+            answer,
+          })) {
+            // Send SSE formatted data
+            controller.enqueue(
+              encoder.encode(`data: ${JSON.stringify({ content: chunk })}\n\n`)
+            );
+          }
 
-${answer ? `Correct Answer:\n${answer}\n\n` : ''}
-
-Please provide:
-1. A clear explanation of how to approach this SQL problem
-2. Step-by-step breakdown of the solution
-3. Key SQL concepts used
-4. Common mistakes to avoid
-
-Format your response in clear, easy-to-understand language. Use markdown for formatting if needed.`;
-
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content:
-            'You are a helpful SQL tutor. Explain SQL concepts clearly and provide step-by-step guidance.',
-        },
-        {
-          role: 'user',
-          content: prompt,
-        },
-      ],
-      temperature: 0.7,
-      max_tokens: 1000,
+          // Send end marker
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ done: true })}\n\n`)
+          );
+          controller.close();
+        } catch (error: any) {
+          console.error('[AI Query Stream Error]', error);
+          controller.enqueue(
+            encoder.encode(
+              `data: ${JSON.stringify({ error: error.message || 'Failed to get AI response' })}\n\n`
+            )
+          );
+          controller.close();
+        }
+      },
     });
 
-    const aiResponse = completion.choices[0]?.message?.content || '';
-
-    return NextResponse.json({
-      success: true,
-      response: aiResponse,
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
     });
   } catch (error: any) {
     console.error('[AI Query Error]', error);
-    return NextResponse.json(
-      {
+    return new Response(
+      JSON.stringify({
         success: false,
         error: error.message || 'Failed to get AI response',
-      },
-      { status: 500 }
+      }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
     );
   }
 }

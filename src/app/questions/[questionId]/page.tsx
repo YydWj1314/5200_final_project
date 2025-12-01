@@ -7,10 +7,10 @@ import QuestionDetailClient from '@/components/QuestionDetailClient';
 //
 type PageProps = { params: { questionId: string } };
 
-// 可选：SEO
+// Optional: SEO
 // export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
 //   const id = Number(params.id);
-//   return { title: Number.isFinite(id) ? `题目 ${id} - 学习平台` : '题目 - 学习平台' };
+//   return { title: Number.isFinite(id) ? `Question ${id} - Learning Platform` : 'Question - Learning Platform' };
 // }
 
 export default async function QuestionDetailPage({ params }: PageProps) {

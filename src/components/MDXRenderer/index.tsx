@@ -16,7 +16,7 @@ export default function MDXRenderer({ md }: { md: string }) {
                 rehypePrettyCode,
                 {
                   theme: { light: 'github-light', dark: 'github-dark' },
-                  keepBackground: true, // 让 <pre> 注入 --shiki-*-bg，便于肉眼确认
+                  keepBackground: true, // Inject --shiki-*-bg into <pre> for visual confirmation
                 },
               ],
             ],

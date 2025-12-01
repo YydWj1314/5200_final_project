@@ -10,14 +10,14 @@ import { useMemo } from 'react';
 
 export default function QuestionListItem({
   question,
-  tokens = [], // 新增：从父组件接收 tokens
+  tokens = [], // New: receive tokens from parent component
 }: {
   question: QuestionInShowList;
   tokens?: string[];
 }) {
   const { isSaved, isLoading, toggleSave } = useQuestionSaved(question.id);
 
-  // 只截取命中附近的片段
+  // Only extract fragments around matches
   const contentSnippet = useMemo(
     () => makeSnippet(question.content ?? '', tokens, 80),
     [question.content, tokens],
@@ -35,7 +35,7 @@ export default function QuestionListItem({
       <List.Item.Meta
         title={
           <Link href={`/questions/${question.id}`}>
-            {/* 标题/题干高亮 */}
+            {/* Title/question highlight */}
             {highlightText(question.content ?? '', tokens)}
           </Link>
         }
@@ -43,7 +43,7 @@ export default function QuestionListItem({
           Array.isArray(question.tags) ? (
             <Space size={4} wrap>
               {question.tags.map((t) => (
-                <Tag key={t}>{highlightText(t, tokens)}</Tag> // hightlight
+                <Tag key={t}>{highlightText(t, tokens)}</Tag> // highlight
               ))}
             </Space>
           ) : (
@@ -52,17 +52,17 @@ export default function QuestionListItem({
         }
       />
 
-      {/* 答案区（摘要 + 高亮） */}
+      {/* Answer area (summary + highlight) */}
       <div style={{ marginTop: 12 }}>
-        [Answer]: {highlightText(answerSnippet, tokens) || '（暂无）'}
+        [Answer]: {highlightText(answerSnippet, tokens) || '(None)'}
       </div>
 
-      {/* 内容摘要（可选：如果你想在标题下再放一段题干摘要） */}
+      {/* Content summary (optional: if you want to add a question summary under the title) */}
       <div style={{ marginTop: 8, color: '#666' }}>
         {highlightText(contentSnippet, tokens)}
       </div>
 
-      {/* 右下角收藏按钮 */}
+      {/* Bottom right favorite button */}
       <div style={{ position: 'absolute', bottom: 8, right: 16 }}>
         <Space>
           <Button

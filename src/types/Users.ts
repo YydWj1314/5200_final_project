@@ -1,13 +1,13 @@
 export interface User {
   id: number; // int8 → number
   user_account: string; // varchar
-  user_password: string; // varchar (哈希存储)
+  user_password: string; // varchar (hashed storage)
   union_id: string | null; // varchar
   mp_open_id: string | null; // varchar
   user_name: string | null; // varchar
   user_avatar: string | null; // varchar (URL)
-  user_profile: string | null; // varchar (简介/描述)
-  user_role: string | null; // varchar (user / admin 等)
+  user_profile: string | null; // varchar (profile/description)
+  user_role: string | null; // varchar (user / admin etc.)
   edited_at: string | null; // timestamptz → ISO string
   created_at: string; // timestamptz
   updated_at: string; // timestamptz
@@ -20,8 +20,8 @@ export interface UserGetById {
   user_name: string | null; // varchar
   user_account: string | null;
   user_avatar: string | null; // varchar (URL)
-  user_profile: string | null; // varchar (简介/描述)
-  user_role: string | null; // varchar (user / admin 等)
+  user_profile: string | null; // varchar (profile/description)
+  user_role: string | null; // varchar (user / admin etc.)
 }
 
 export interface Me {

@@ -14,7 +14,12 @@ import {
   Spin,
   message,
 } from 'antd';
-import { StarOutlined, StarFilled, RobotOutlined } from '@ant-design/icons';
+import {
+  StarOutlined,
+  StarFilled,
+  RobotOutlined,
+  CheckCircleOutlined,
+} from '@ant-design/icons';
 import type { CSSProperties } from 'react';
 import { useParams } from 'next/navigation';
 import styles from './index.module.css';
@@ -51,25 +56,31 @@ function getBtnProps(opts: {
 export default function ExamClient({
   questions,
   bankTitle,
-  contentNodes, // ← 新增：server 预渲染的题干节点
-  answerNodes, // ← 新增：server 预渲染的答案节点
+  contentNodes, // Server pre-rendered question nodes
+  answerNodes, // Server pre-rendered answer nodes
 }: {
   questions: QuestionInDetail[];
   bankTitle: string;
-  contentNodes: ReactNode[]; // ← 关键：接收React节点数组
-  answerNodes: ReactNode[]; // ← 关键：接收React节点数组
+  contentNodes: ReactNode[]; // Receive React node array
+  answerNodes: ReactNode[]; // Receive React node array
 }) {
   const qn = questions.length;
-  const [qi, setQi] = useState(0); // 当前题 index
+  const [qi, setQi] = useState(0); // Current question index
   const [isAnswerHidden, setIsAnswerHidden] = useState(true);
   const [fontSize, setFontSize] = useState(16);
   const [marks, setMarks] = useState<Set<number>>(new Set());
   const [answered, setAnswered] = useState<Set<number>>(new Set());
   
-  // AI 查询相关状态
+  // AI query related state
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiResponse, setAiResponse] = useState<string>('');
   const [isAiLoading, setIsAiLoading] = useState(false);
+
+  // SQL check related state
+  const [isSqlCheckModalOpen, setIsSqlCheckModalOpen] = useState(false);
+  const [userSQL, setUserSQL] = useState<string>('');
+  const [sqlCheckResult, setSqlCheckResult] = useState<string>('');
+  const [isSqlChecking, setIsSqlChecking] = useState(false);
 
   // from router: exams/[bankId]
   const params = useParams();
@@ -82,14 +93,14 @@ export default function ExamClient({
     toggleFavorite,
   } = useBankFavorites(bankId);
 
-  // 切题时自动隐藏答案
+  // Auto hide answer when switching questions
   useEffect(() => {
     setIsAnswerHidden(true);
   }, [qi]);
 
   const curr = questions[qi];
   
-  // 确保 curr 存在
+  // Ensure curr exists
   if (!curr) {
     return null;
   }
@@ -118,14 +129,14 @@ export default function ExamClient({
     });
   };
 
-  // AI 查询功能
+  // AI query function (streaming response)
   const handleAiQuery = async () => {
     setIsAiModalOpen(true);
     setIsAiLoading(true);
     setAiResponse('');
 
     try {
-      // 提取题目和答案的文本内容
+      // Extract question and answer text content
       const questionText = curr.content || '';
       const answerText = curr.answer || '';
 
@@ -140,26 +151,61 @@ export default function ExamClient({
         }),
       });
 
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error('Failed to get AI response');
+      }
 
-      if (data.success) {
-        setAiResponse(data.response);
-      } else {
-        message.error(data.error || 'Failed to get AI response');
-        setAiResponse('Sorry, I encountered an error. Please try again.');
+      // Handle streaming response
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+
+      if (!reader) {
+        throw new Error('No response body');
+      }
+
+      let buffer = '';
+      setIsAiLoading(false); // Close loading after starting to receive data
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || ''; // Keep the last incomplete line
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.done) {
+                return; // Stream ended
+              }
+              if (data.error) {
+                message.error(data.error);
+                setAiResponse('Sorry, I encountered an error. Please try again.');
+                return;
+              }
+              if (data.content) {
+                setAiResponse((prev) => prev + data.content);
+              }
+            } catch (e) {
+              // Ignore parsing errors
+            }
+          }
+        }
       }
     } catch (error) {
       console.error('[AI Query Error]', error);
       message.error('Failed to connect to AI service');
       setAiResponse('Sorry, I encountered an error. Please try again.');
-    } finally {
       setIsAiLoading(false);
     }
   };
 
   return (
     <Layout className={styles.fullHeightLayout}>
-      {/* 顶部 */}
+      {/* Header */}
       <Header className={styles.header}>
         <Row className={styles.headerInner}>
           <Col className={styles.bankTitle}>{bankTitle}</Col>
@@ -177,22 +223,22 @@ export default function ExamClient({
         </Row>
       </Header>
 
-      {/* 内容区 */}
+      {/* Content Area */}
       <Content className={styles.contentArea}>
         <div className={styles.wrapper}>
           <Row gutter={24} align="stretch">
-            {/* 左侧：题目 + 答案 */}
+            {/* Left: Question + Answer */}
             <Col xs={24} md={16}>
               <Card
                 className={styles.mainCard}
                 styles={{ body: { padding: 16 } }}
               >
-                {/* 题干区：flex-grow + 内部滚动 */}
+                {/* Question Area: flex-grow + internal scroll */}
                 <div className={styles.questionPane} style={{ fontSize }}>
                   {contentNodes[qi]}
                 </div>
 
-                {/* 操作区：固定高度 */}
+                {/* Action Bar: fixed height */}
                 <div className={styles.actionBar}>
                   <Space>
                     <Button
@@ -216,6 +262,17 @@ export default function ExamClient({
                       onClick={handleAiQuery}
                     >
                       Ask AI
+                    </Button>
+                    <Button
+                      type="default"
+                      icon={<CheckCircleOutlined />}
+                      onClick={() => {
+                        setIsSqlCheckModalOpen(true);
+                        setUserSQL('');
+                        setSqlCheckResult('');
+                      }}
+                    >
+                      Check SQL
                     </Button>
                   </Space>
 
@@ -268,7 +325,7 @@ export default function ExamClient({
                   </div>
                 </div>
 
-                {/* 答案区：flex-grow + 内部滚动；隐藏时高度为 0 */}
+                {/* Answer Area: flex-grow + internal scroll; height 0 when hidden */}
                 <div
                   className={`${styles.answerPane} ${isAnswerHidden ? styles.isHidden : ''}`}
                   style={{ fontSize }}
@@ -278,7 +335,7 @@ export default function ExamClient({
               </Card>
             </Col>
 
-            {/* 右侧：答题卡 + 设置（粘性吸顶） */}
+            {/* Right: Answer Sheet + Settings (sticky top) */}
             <Col xs={24} md={8}>
               <div className={styles.rightSticky}>
                 <Card
@@ -327,7 +384,7 @@ export default function ExamClient({
         </div>
       </Content>
 
-      {/* AI 查询 Modal */}
+      {/* AI Query Modal */}
       <Modal
         title={
           <Space>
@@ -336,13 +393,16 @@ export default function ExamClient({
           </Space>
         }
         open={isAiModalOpen}
-        onCancel={() => setIsAiModalOpen(false)}
+        onCancel={() => {
+          setIsAiModalOpen(false);
+          setAiResponse('');
+        }}
         footer={[
           <Button key="close" onClick={() => setIsAiModalOpen(false)}>
             Close
           </Button>,
         ]}
-        width={800}
+        width={900}
         style={{ top: 20 }}
       >
         <div style={{ minHeight: 300, maxHeight: 600, overflow: 'auto' }}>
@@ -354,11 +414,143 @@ export default function ExamClient({
               </div>
             </div>
           ) : (
-            <div style={{ fontSize: 15, lineHeight: 1.8 }}>
-              <ReactMarkdown>{aiResponse}</ReactMarkdown>
+            <div
+              style={{
+                fontSize: 15,
+                lineHeight: 1.8,
+                padding: '8px 0',
+              }}
+            >
+              {aiResponse ? (
+                <ReactMarkdown>{aiResponse}</ReactMarkdown>
+              ) : (
+                <div style={{ color: '#999', textAlign: 'center' }}>
+                  Waiting for AI response...
+                </div>
+              )}
             </div>
           )}
         </div>
+      </Modal>
+
+      {/* SQL Check Modal */}
+      <Modal
+        title={
+          <Space>
+            <CheckCircleOutlined />
+            <span>SQL Code Checker</span>
+          </Space>
+        }
+        open={isSqlCheckModalOpen}
+        onCancel={() => {
+          setIsSqlCheckModalOpen(false);
+          setUserSQL('');
+          setSqlCheckResult('');
+        }}
+        footer={[
+          <Button
+            key="check"
+            type="primary"
+            loading={isSqlChecking}
+            onClick={async () => {
+              if (!userSQL.trim()) {
+                message.warning('Please enter your SQL code');
+                return;
+              }
+
+              setIsSqlChecking(true);
+              setSqlCheckResult('');
+
+              try {
+                const response = await fetch('/api/ai/check-sql', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    userSQL: userSQL.trim(),
+                    correctSQL: curr.answer || '',
+                    question: curr.content || '',
+                  }),
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                  setSqlCheckResult(data.feedback);
+                } else {
+                  message.error(data.error || 'Failed to check SQL');
+                  setSqlCheckResult('Sorry, I encountered an error. Please try again.');
+                }
+              } catch (error) {
+                console.error('[SQL Check Error]', error);
+                message.error('Failed to connect to AI service');
+                setSqlCheckResult('Sorry, I encountered an error. Please try again.');
+              } finally {
+                setIsSqlChecking(false);
+              }
+            }}
+          >
+            Check SQL
+          </Button>,
+          <Button
+            key="close"
+            onClick={() => {
+              setIsSqlCheckModalOpen(false);
+              setUserSQL('');
+              setSqlCheckResult('');
+            }}
+          >
+            Close
+          </Button>,
+        ]}
+        width={1000}
+        style={{ top: 20 }}
+      >
+        <Space direction="vertical" style={{ width: '100%' }} size="large">
+          <div>
+            <div style={{ marginBottom: 8, fontWeight: 500 }}>
+              Your SQL Code:
+            </div>
+            <textarea
+              value={userSQL}
+              onChange={(e) => setUserSQL(e.target.value)}
+              placeholder="Enter your SQL code here..."
+              style={{
+                width: '100%',
+                minHeight: 150,
+                padding: 12,
+                fontFamily: 'monospace',
+                fontSize: 14,
+                border: '1px solid #d9d9d9',
+                borderRadius: 4,
+                resize: 'vertical',
+              }}
+            />
+          </div>
+
+          {sqlCheckResult && (
+            <div>
+              <div style={{ marginBottom: 8, fontWeight: 500 }}>
+                AI Feedback:
+              </div>
+              <div
+                style={{
+                  minHeight: 200,
+                  maxHeight: 500,
+                  overflow: 'auto',
+                  padding: 16,
+                  backgroundColor: '#f5f5f5',
+                  borderRadius: 4,
+                  fontSize: 14,
+                  lineHeight: 1.8,
+                }}
+              >
+                <ReactMarkdown>{sqlCheckResult}</ReactMarkdown>
+              </div>
+            </div>
+          )}
+        </Space>
       </Modal>
     </Layout>
   );

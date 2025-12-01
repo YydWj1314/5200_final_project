@@ -29,17 +29,17 @@ export default function TopSavedCard({
                 gap: 12,
               }}
             >
-              {/* 左侧标题：单行省略，悬浮显示全文 */}
+              {/* Left title: single line ellipsis, show full text on hover */}
               <Paragraph
                 ellipsis={{ rows: 1, tooltip: q.content }}
                 style={{ margin: 0, maxWidth: 560, fontWeight: 500 }}
               >
                 <a href={`/questions/${q.id}`}>
-                  {extractTitle(q.content ?? '(无标题)')}
+                  {extractTitle(q.content ?? '(No title)')}
                 </a>
               </Paragraph>
 
-              {/* 右侧热度 */}
+              {/* Right popularity */}
               <Space>
                 <FireOutlined style={{ color: '#fa541c' }} />
                 <Text strong>{q.saved_count}</Text>

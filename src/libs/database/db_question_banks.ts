@@ -1,9 +1,9 @@
 /**
  * Data Access Layer (DAL) — Query methods for the `question_banks` table.
  *
- * MySQL 版本（GCP Cloud SQL）：
- * - 使用 getDBPool() 获取连接池
- * - 所有查询只返回 is_delete = 0 的记录
+ * MySQL version (GCP Cloud SQL):
+ * - Use getDBPool() to get connection pool
+ * - All queries only return records where is_delete = 0
  */
 
 import { Bank } from '@/types/Banks';
@@ -12,7 +12,7 @@ import { throwError } from '../utils/errorUtils';
 import { getDBPool } from '../db';
 
 /**
- * 获取所有题库（按创建时间倒序，限制条数）
+ * Get all question banks (ordered by creation time DESC, with limit)
  * @param limit
  * @returns
  */
@@ -48,7 +48,7 @@ export async function getAllBanks(limit = 12): Promise<Bank[]> {
 }
 
 /**
- * 根据 id 获取单个题库
+ * Get a single question bank by id
  * @param id
  * @returns
  */
@@ -85,7 +85,7 @@ export async function getBankById(id: number | string): Promise<Bank | null> {
 }
 
 /**
- * 根据 topic 获取题库列表
+ * Get question banks by topic
  * @param topic
  * @param limit
  * @returns

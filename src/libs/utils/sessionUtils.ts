@@ -18,7 +18,7 @@ interface InsertSessionResult {
  *           expirsAt: string,  representing timestamps
  */
 export function createSession(): InsertSessionResult {
-  const sid = crypto.randomBytes(32).toString('hex'); //生成一个随机的 session ID（相当于令牌），然后转成 64 位十六进制字符串。
+  const sid = crypto.randomBytes(32).toString('hex'); // Generate a random session ID (like a token), then convert to 64-bit hexadecimal string.
   const expiresAt = new Date(
     Date.now() + SESSION_MAX_AGE_SEC * 1000,
   ).toISOString();
@@ -58,7 +58,7 @@ export async function authSessionInServer(): Promise<number | null> {
     if (!sid) return null;
 
     const hashedSid = hashSession(sid);
-    // getUserIdBySession 内部请校验 expires_at > now()
+    // getUserIdBySession internally validates expires_at > now()
     const userId = await getUserIdBySession(hashedSid);
     return userId ?? null;
   } catch (err) {

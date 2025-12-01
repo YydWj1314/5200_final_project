@@ -27,14 +27,14 @@ export async function insertSession(
   try {
     const pool = getDBPool();
 
-    // 把 ISO 字符串转成 Date
+    // Convert ISO string to Date
     const expiryDate = new Date(expiresAt);
     if (Number.isNaN(expiryDate.getTime())) {
       console.error('[insertSession] invalid expiresAt:', expiresAt);
       throwError('Invalid expiresAt');
     }
 
-    // transfre MySQL DATETIME ：YYYY-MM-DD HH:MM:SS
+    // Convert to MySQL DATETIME format: YYYY-MM-DD HH:MM:SS
     const mysqlExpiresAt = expiryDate
       .toISOString() // 2025-11-27T02:28:40.681Z
       .slice(0, 19) // 2025-11-27T02:28:40
@@ -100,7 +100,7 @@ export async function getUserIdBySession(
 }
 
 /**
- * Delete session by sid (原始 sid)
+ * Delete session by sid (original sid)
  * @param sid unhashed session id
  * @returns numbers of item deleted
  */

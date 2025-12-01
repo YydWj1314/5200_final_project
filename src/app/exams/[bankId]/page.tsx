@@ -26,7 +26,7 @@ export default async function ExamPage({
   ]);
   if (!bank) notFound();
 
-  //  在 server 端把每道题的 content/answer 渲染成 md React 节点：
+  // Render each question's content/answer as md React nodes on server side:
   const contentNodes = questions.map((q) => (
     <MDXRenderer key={`c-${q.id}`} md={q.content ?? ''} />
   ));

@@ -14,7 +14,7 @@ export default async function QuestionsPage() {
   }
 
   const [questions, topSavedQuestions] = await Promise.all([
-    getAllQuestions(), // 你的主列表
+    getAllQuestions(), // Your main list
     getTopSavedQuestions(LIMIT), // Top 10 saved
   ]);
   // console.log(questions);

@@ -7,7 +7,7 @@
 }
 
 .card {
-  width: 460px; /* 注册字段多一点，略宽 */
+  width: 460px; /* Registration has more fields, slightly wider */
   max-width: 92vw;
   transform: translateY(-80px);
 }
