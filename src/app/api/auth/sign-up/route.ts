@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { addUser, getUidByEmail } from '@/libs/database/db_user';
+import {
+  createSession,
+  storeSessionInResponse,
+} from '@/libs/utils/sessionUtils';
+import { insertSession } from '@/libs/database/db_sessions';
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
@@ -61,6 +66,21 @@ export async function POST(req: Request) {
     );
   }
 
-  // 5) return success
+  // 5) Create session & cookie (auto-login after registration)
+  try {
+    const { sid, expiresAt } = createSession();
+    await storeSessionInResponse(sid);
+    const { hashedSid } = await insertSession(sid, newId, expiresAt);
+
+    if (!hashedSid) {
+      console.error('[sign-up] Failed to create session');
+      // Still return success, but session creation failed
+    }
+  } catch (e) {
+    console.error('[sign-up] Session creation error:', e);
+    // Still return success, but session creation failed
+  }
+
+  // 6) return success
   return NextResponse.json({ ok: true, userId: newId });
 }

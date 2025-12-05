@@ -13,6 +13,7 @@ import {
   Modal,
   Spin,
   message,
+  Input,
 } from 'antd';
 import {
   StarOutlined,
@@ -71,6 +72,11 @@ export default function ExamClient({
   const [marks, setMarks] = useState<Set<number>>(new Set());
   const [answered, setAnswered] = useState<Set<number>>(new Set());
   
+  // User SQL input state (per question)
+  const [userSQLInputs, setUserSQLInputs] = useState<Map<number, string>>(new Map());
+  const [sqlComparisonResult, setSqlComparisonResult] = useState<string>('');
+  const [isComparing, setIsComparing] = useState(false);
+  
   // AI query related state
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiResponse, setAiResponse] = useState<string>('');
@@ -93,12 +99,75 @@ export default function ExamClient({
     toggleFavorite,
   } = useBankFavorites(bankId);
 
+  const curr = questions[qi];
+  
   // Auto hide answer when switching questions
   useEffect(() => {
     setIsAnswerHidden(true);
+    setSqlComparisonResult(''); // Clear comparison result when switching questions
   }, [qi]);
+  
+  // Get current user SQL input
+  const currentUserSQL = userSQLInputs.get(Number(curr?.id)) || '';
+  
+  // Update user SQL input
+  const handleUserSQLChange = (value: string) => {
+    if (!curr) return;
+    setUserSQLInputs((prev) => {
+      const next = new Map(prev);
+      next.set(Number(curr.id), value);
+      return next;
+    });
+  };
+  
+  // Normalize SQL for comparison (remove extra whitespace, convert to lowercase)
+  const normalizeSQL = (sql: string): string => {
+    return sql
+      .trim()
+      .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+      .replace(/\s*\(\s*/g, '(') // Remove spaces around opening parentheses
+      .replace(/\s*\)\s*/g, ')') // Remove spaces around closing parentheses
+      .replace(/\s*,\s*/g, ',') // Remove spaces around commas
+      .replace(/\s*;\s*/g, ';') // Remove spaces around semicolons
+      .toLowerCase();
+  };
 
-  const curr = questions[qi];
+  // Compare user SQL with answer
+  const compareUserSQL = () => {
+    if (!curr) return;
+    if (!currentUserSQL.trim()) {
+      message.warning('Please enter your SQL code first');
+      return;
+    }
+    
+    const correctSQL = curr.answer || '';
+    if (!correctSQL.trim()) {
+      message.warning('No answer available for comparison');
+      return;
+    }
+    
+    setIsComparing(true);
+    
+    // Normalize both SQLs for comparison
+    const normalizedUserSQL = normalizeSQL(currentUserSQL);
+    const normalizedCorrectSQL = normalizeSQL(correctSQL);
+    
+    // Check if they match
+    const isExactMatch = normalizedUserSQL === normalizedCorrectSQL;
+    
+    // Generate comparison result
+    let result = '';
+    if (isExactMatch) {
+      result = `## ✅ Correct!\n\nYour SQL matches the reference answer.\n\n**Your SQL:**\n\`\`\`sql\n${currentUserSQL}\n\`\`\`\n\n**Reference Answer:**\n\`\`\`sql\n${correctSQL}\n\`\`\``;
+      message.success('Your SQL is correct!');
+    } else {
+      result = `## ❌ Not Matching\n\nYour SQL does not match the reference answer.\n\n**Your SQL:**\n\`\`\`sql\n${currentUserSQL}\n\`\`\`\n\n**Reference Answer:**\n\`\`\`sql\n${correctSQL}\n\`\`\``;
+      message.warning('SQL does not match the reference answer');
+    }
+    
+    setSqlComparisonResult(result);
+    setIsComparing(false);
+  };
   
   // Ensure curr exists
   if (!curr) {
@@ -252,6 +321,10 @@ export default function ExamClient({
                       onClick={() => {
                         setIsAnswerHidden(false);
                         markAnswered();
+                        // If user has entered SQL, compare it automatically
+                        if (currentUserSQL.trim()) {
+                          compareUserSQL();
+                        }
                       }}
                     >
                       👉 Show Answer
@@ -325,12 +398,67 @@ export default function ExamClient({
                   </div>
                 </div>
 
+                {/* User SQL Input Area */}
+                <div className={styles.userSQLArea}>
+                  <div style={{ marginBottom: 8, fontWeight: 500, fontSize: 14 }}>
+                    Your SQL Code:
+                  </div>
+                  <Input.TextArea
+                    value={currentUserSQL}
+                    onChange={(e) => handleUserSQLChange(e.target.value)}
+                    placeholder="Enter your SQL code here..."
+                    rows={6}
+                    style={{
+                      fontFamily: 'monospace',
+                      fontSize: 14,
+                      marginBottom: 8,
+                    }}
+                  />
+                  {currentUserSQL.trim() && (
+                    <Button
+                      type="default"
+                      onClick={compareUserSQL}
+                      loading={isComparing}
+                      style={{ marginBottom: 12 }}
+                    >
+                      Compare with Answer
+                    </Button>
+                  )}
+                  {sqlComparisonResult && (
+                    <div className={styles.comparisonResult}>
+                      <div style={{ marginBottom: 8, fontWeight: 500, fontSize: 14 }}>
+                        Comparison Result:
+                      </div>
+                      <div
+                        style={{
+                          padding: 12,
+                          backgroundColor: '#f5f5f5',
+                          borderRadius: 4,
+                          fontSize: 13,
+                          lineHeight: 1.8,
+                          maxHeight: 300,
+                          overflow: 'auto',
+                        }}
+                      >
+                        <ReactMarkdown>{sqlComparisonResult}</ReactMarkdown>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 {/* Answer Area: flex-grow + internal scroll; height 0 when hidden */}
                 <div
                   className={`${styles.answerPane} ${isAnswerHidden ? styles.isHidden : ''}`}
                   style={{ fontSize }}
                 >
-                  {!isAnswerHidden && answerNodes[qi]}
+                  {!isAnswerHidden && (
+                    <>
+                      <div style={{ marginBottom: 12, fontWeight: 500, fontSize: 14 }}>
+                        Reference Answer:
+                      </div>
+                      {answerNodes[qi]}
+                    </>
+                  )}
                 </div>
               </Card>
             </Col>

@@ -94,7 +94,7 @@
 /* Typewriter effect */
 .typewriter {
   white-space: nowrap;
-  overflow: hidden;
+  overflow: visible;
   border-right: 4px solid rgb(80, 70, 100);
   padding-right: 5px;
   width: 0;
@@ -107,7 +107,7 @@
     width: 0;
   }
   to {
-    width: 12ch;
+    width: 16ch;
   }
 }
 @keyframes blink {

@@ -68,12 +68,26 @@
   gap: 12px;
 }
 
+/* User SQL input area */
+.userSQLArea {
+  padding: 12px;
+  border-top: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
+  background: #fafafa;
+}
+
+.comparisonResult {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #d9d9d9;
+}
+
 /* Answer area: stretchable + internal scroll */
 .answerPane {
   flex: 1 1 0;
   display: flex; /* Enable flex */
-  align-items: center; /* Vertical center */
-  justify-content: flex-start; /* Horizontal left (can change to center) */
+  flex-direction: column;
+  align-items: flex-start; /* Horizontal left */
   overflow: auto; /* Scrollable when content overflows */
   padding: 12px;
   min-height: 150px;

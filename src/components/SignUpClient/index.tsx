@@ -1,8 +1,9 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, Form, Button, Input, message } from 'antd';
 import { LockOutlined, MailOutlined, UserOutlined } from '@ant-design/icons';
+import { mutate } from 'swr';
 import styles from './page.module.css';
 
 type FormValues = {
@@ -16,12 +17,36 @@ type FormValues = {
 export function SignUpClient() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+
+  // Hide password leak warning dialogs (only hide dialogs, don't modify inputs)
+  useEffect(() => {
+    const hideWarningDialogs = () => {
+      const warningDialogs = document.querySelectorAll(
+        'div[role="alertdialog"], [data-chrome-password-leak-warning], [data-google-password-leak-warning]'
+      );
+      warningDialogs.forEach((dialog: any) => {
+        if (dialog && (dialog.textContent?.includes('data breach') || 
+                       (dialog.textContent?.includes('password') && 
+                        dialog.textContent?.includes('found')))) {
+          dialog.style.display = 'none';
+          dialog.style.visibility = 'hidden';
+          dialog.remove();
+        }
+      });
+    };
+
+    // Check periodically for warning dialogs
+    const interval = setInterval(hideWarningDialogs, 500);
+    return () => clearInterval(interval);
+  }, []);
+
   // Sent POST request
   async function onFinish(values: FormValues) {
     try {
       setLoading(true);
       const res = await fetch('/api/auth/sign-up', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(values),
       });
@@ -29,6 +54,8 @@ export function SignUpClient() {
       if (!res.ok || !data?.ok) {
         return message.error(data?.error || 'Register failed');
       }
+      // Refresh user session data
+      await mutate('/api/auth/me');
       message.success('Register successfully');
       router.replace('/'); // Redirect to homepage after successful registration
     } catch {
@@ -43,7 +70,11 @@ export function SignUpClient() {
         className={styles.card}
         title={<div className={styles.header}>Sign Up</div>}
       >
-        <Form layout="vertical" onFinish={onFinish} requiredMark="optional">
+        <Form 
+          layout="vertical" 
+          onFinish={onFinish} 
+          requiredMark="optional"
+        >
           <Form.Item
             name="email"
             label="Email"
@@ -85,6 +116,7 @@ export function SignUpClient() {
             <Input.Password
               placeholder="6 digits at least"
               prefix={<LockOutlined />}
+              autoComplete="new-password"
             />
           </Form.Item>
 
@@ -108,6 +140,7 @@ export function SignUpClient() {
             <Input.Password
               placeholder="Please input password again"
               prefix={<LockOutlined />}
+              autoComplete="new-password"
             />
           </Form.Item>
 

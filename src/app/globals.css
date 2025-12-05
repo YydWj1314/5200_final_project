@@ -9,3 +9,19 @@ body {
   max-width: 100vw;
   max-height: 100vh;
 }
+
+/* Hide browser password leak warnings */
+.ant-input-password input[type="password"] {
+  -webkit-text-security: disc !important;
+}
+
+/* Hide Chrome password leak warning dialogs */
+div[role="alertdialog"][aria-live="assertive"],
+div[role="alertdialog"][aria-live="polite"],
+[data-chrome-password-leak-warning],
+[data-google-password-leak-warning] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
